@@ -90,7 +90,7 @@ class _HeroPanel extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               Text(
-                'Admin console untuk master data, transaksi, dan integrasi Cashlez POS API.',
+                'Admin console untuk master data, transaksi, dan integrasi Nivora POS API.',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
@@ -112,7 +112,7 @@ class _HeroPanel extends StatelessWidget {
             runSpacing: 12,
             children: const [
               _FeatureBadge(label: 'GetX state'),
-              _FeatureBadge(label: 'Cashlez API'),
+              _FeatureBadge(label: 'Nivora API'),
               _FeatureBadge(label: 'Desktop-first'),
             ],
           ),

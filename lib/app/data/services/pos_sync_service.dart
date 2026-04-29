@@ -9,7 +9,7 @@ class PosSyncService {
         PosMenuItem(
           key: 'user',
           label: 'Sesi API',
-          description: 'Status login dan token aktif untuk Cashlez POS API.',
+          description: 'Status login dan token aktif untuk Nivora POS API.',
         ),
         PosMenuItem(
           key: 'item',
