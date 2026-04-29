@@ -1,0 +1,16 @@
+services:
+  pos-pc-nivora:
+    container_name: pos-pc-nivora
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pos-pc-nivora:latest
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true

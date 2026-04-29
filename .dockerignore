@@ -1,0 +1,14 @@
+.dart_tool
+.git
+.idea
+build/**
+!build/web/**
+docs
+lib
+test
+web
+README.md
+analysis_options.yaml
+pos_pc_nivora.iml
+pubspec.lock
+pubspec.yaml
