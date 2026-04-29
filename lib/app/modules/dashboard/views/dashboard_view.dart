@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/menu_models.dart';
+import '../../auth/controllers/auth_controller.dart';
+import '../../category/views/category_management_view.dart';
+import '../../payment/views/payment_setting_view.dart';
+import '../../product/views/product_management_view.dart';
+import '../../report/views/report_summary_view.dart';
+import '../../stock/views/stock_management_view.dart';
+import '../../transaction/views/transaction_management_view.dart';
+import '../../upload/views/upload_management_view.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -15,7 +23,9 @@ class DashboardView extends GetView<DashboardController> {
         child: LayoutBuilder(
           builder: (context, viewportConstraints) {
             final minHeight =
-                viewportConstraints.maxHeight > 0 ? viewportConstraints.maxHeight - 48 : 720.0;
+                viewportConstraints.maxHeight > 0
+                    ? viewportConstraints.maxHeight - 48
+                    : 720.0;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -39,10 +49,15 @@ class DashboardView extends GetView<DashboardController> {
                                 height: panelHeight,
                                 child: Column(
                                   children: [
-                                    _MenuPanel(controller: controller, compact: true),
+                                    _MenuPanel(
+                                      controller: controller,
+                                      compact: true,
+                                    ),
                                     const SizedBox(height: 16),
                                     Expanded(
-                                      child: _ContentPanel(controller: controller),
+                                      child: _ContentPanel(
+                                        controller: controller,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -63,7 +78,9 @@ class DashboardView extends GetView<DashboardController> {
                                   ),
                                   const SizedBox(width: 20),
                                   Expanded(
-                                    child: _ContentPanel(controller: controller),
+                                    child: _ContentPanel(
+                                      controller: controller,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -161,7 +178,18 @@ class _HeaderCard extends StatelessWidget {
                 label: status['shift'] as String,
                 tone: _BadgeTone.light,
               ),
-              _StatusBadge(label: 'Tablet: Draft', tone: _BadgeTone.warning),
+              TextButton(
+                onPressed: controller.logout,
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.16),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text('Logout'),
+              ),
             ],
           ),
         ],
@@ -229,11 +257,13 @@ class _MenuPanel extends StatelessWidget {
                     children:
                         controller.categories.map((category) {
                           final selected =
-                              controller.selectedCategoryKey.value == category.key;
+                              controller.selectedCategoryKey.value ==
+                              category.key;
                           return _CategoryChip(
                             label: category.label,
                             selected: selected,
-                            onTap: () => controller.selectCategory(category.key),
+                            onTap:
+                                () => controller.selectCategory(category.key),
                           );
                         }).toList(),
                   ),
@@ -287,6 +317,7 @@ class _ContentPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final item = controller.selectedMenu;
+      final authController = Get.find<AuthController>();
       return Container(
         padding: const EdgeInsets.all(22),
         decoration: _panelDecoration(),
@@ -310,66 +341,201 @@ class _ContentPanel extends StatelessWidget {
             Wrap(
               spacing: 14,
               runSpacing: 14,
-              children: const [
-                _InfoStat(title: 'Total User', value: '12'),
-                _InfoStat(title: 'Item Aktif', value: '248'),
-                _InfoStat(title: 'Shift Hari Ini', value: '3'),
+              children: [
+                _InfoStat(
+                  title: 'Status Login',
+                  value: authController.isLoggedIn ? 'Aktif' : 'Belum',
+                ),
+                const _InfoStat(
+                  title: 'Modul Master',
+                  value: 'Kategori + Produk',
+                ),
+                const _InfoStat(title: 'Shift Hari Ini', value: '3'),
               ],
             ),
             const SizedBox(height: 22),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF7FAFD),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFD5DFEA)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Panel kerja',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Versi awal ini fokus pada layout POS PC yang fungsional. Setiap menu sudah aktif dan bisa dipilih, sehingga tahap berikutnya tinggal menghubungkan form, tabel, dan API transaksi.',
-                  ),
-                  const SizedBox(height: 18),
-                  const Wrap(
-                    spacing: 14,
-                    runSpacing: 14,
-                    children: [
-                      SizedBox(
-                        width: 280,
-                        child: _ActionCard(
-                          icon: Icons.people_alt_outlined,
-                          title: 'Data Operasional',
-                          description:
-                              'Tempat tabel, filter, dan form master/transaksi.',
-                        ),
-                      ),
-                      SizedBox(
-                        width: 280,
-                        child: _ActionCard(
-                          icon: Icons.sync_alt,
-                          title: 'Bridge Tablet',
-                          description:
-                              'Disiapkan sebagai service layer untuk sinkronisasi LAN/API.',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            if (item.key == 'user')
+              _SessionPanel(authController: authController),
+            if (item.key == 'item') const _MasterItemPanel(),
+            if (item.key == 'stock') const _StockPanel(),
+            if (item.key == 'payment-setting') const _PaymentSettingPanel(),
+            if (item.key == 'upload') const _UploadPanel(),
+            if (item.key == 'shift') const _TransactionPanel(),
+            if (item.key == 'shift-report' ||
+                item.key == 'daily-report' ||
+                item.key == 'sales-report' ||
+                item.key == 'stats')
+              const _ReportPanel(),
+            if (item.key != 'user' &&
+                item.key != 'item' &&
+                item.key != 'stock' &&
+                item.key != 'payment-setting' &&
+                item.key != 'upload' &&
+                item.key != 'shift' &&
+                item.key != 'shift-report' &&
+                item.key != 'daily-report' &&
+                item.key != 'sales-report' &&
+                item.key != 'stats')
+              const _ComingSoonPanel(),
           ],
         ),
       );
     });
+  }
+}
+
+class _SessionPanel extends StatelessWidget {
+  const _SessionPanel({required this.authController});
+
+  final AuthController authController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7FAFD),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD5DFEA)),
+      ),
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Status sesi API',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              authController.isLoggedIn
+                  ? 'Token login aktif dan siap dipakai untuk request category dan product.'
+                  : 'Belum ada token aktif. Kembali ke login untuk memulai sesi.',
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFD8E3ED)),
+              ),
+              child: Text(
+                authController.isLoggedIn
+                    ? authController.maskedToken
+                    : 'Token belum tersedia',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MasterItemPanel extends StatelessWidget {
+  const _MasterItemPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        SizedBox(height: 4),
+        SizedBox(height: 420, child: CategoryManagementView()),
+        SizedBox(height: 18),
+        SizedBox(height: 560, child: ProductManagementView()),
+      ],
+    );
+  }
+}
+
+class _TransactionPanel extends StatelessWidget {
+  const _TransactionPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(height: 860, child: TransactionManagementView());
+  }
+}
+
+class _StockPanel extends StatelessWidget {
+  const _StockPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(height: 560, child: StockManagementView());
+  }
+}
+
+class _PaymentSettingPanel extends StatelessWidget {
+  const _PaymentSettingPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(height: 420, child: PaymentSettingView());
+  }
+}
+
+class _UploadPanel extends StatelessWidget {
+  const _UploadPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(height: 320, child: UploadManagementView());
+  }
+}
+
+class _ReportPanel extends StatelessWidget {
+  const _ReportPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(height: 620, child: ReportSummaryView());
+  }
+}
+
+class _ComingSoonPanel extends StatelessWidget {
+  const _ComingSoonPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7FAFD),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD5DFEA)),
+      ),
+      child: const Wrap(
+        spacing: 14,
+        runSpacing: 14,
+        children: [
+          SizedBox(
+            width: 280,
+            child: _ActionCard(
+              icon: Icons.receipt_long_outlined,
+              title: 'Modul Transaksi',
+              description:
+                  'Tahap berikutnya menghubungkan cart, create transaction, dan update payment.',
+            ),
+          ),
+          SizedBox(
+            width: 280,
+            child: _ActionCard(
+              icon: Icons.sync_alt,
+              title: 'Bridge Tablet',
+              description:
+                  'Disiapkan sebagai service layer untuk sinkronisasi LAN/API.',
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -581,11 +747,9 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final backgroundColor = switch (tone) {
       _BadgeTone.light => Colors.white.withValues(alpha: 0.16),
-      _BadgeTone.warning => const Color(0xFFFFE9BF),
     };
     final foregroundColor = switch (tone) {
       _BadgeTone.light => Colors.white,
-      _BadgeTone.warning => const Color(0xFF845B00),
     };
 
     return Container(
@@ -605,7 +769,7 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-enum _BadgeTone { light, warning }
+enum _BadgeTone { light }
 
 BoxDecoration _panelDecoration() {
   return BoxDecoration(

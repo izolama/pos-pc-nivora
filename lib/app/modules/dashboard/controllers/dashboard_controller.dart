@@ -2,11 +2,28 @@ import 'package:get/get.dart';
 
 import '../../../data/models/menu_models.dart';
 import '../../../data/services/pos_sync_service.dart';
+import '../../../routes/app_pages.dart';
+import '../../auth/controllers/auth_controller.dart';
+import '../../category/controllers/category_controller.dart';
+import '../../payment/controllers/payment_setting_controller.dart';
+import '../../product/controllers/product_controller.dart';
+import '../../report/controllers/report_controller.dart';
+import '../../stock/controllers/stock_controller.dart';
+import '../../transaction/controllers/transaction_controller.dart';
+import '../../upload/controllers/upload_controller.dart';
 
 class DashboardController extends GetxController {
   DashboardController({required this.syncService});
 
   final PosSyncService syncService;
+  final AuthController authController = Get.find();
+  final CategoryController categoryController = Get.find();
+  final StockController stockController = Get.find();
+  final PaymentSettingController paymentSettingController = Get.find();
+  final ReportController reportController = Get.find();
+  final UploadController uploadController = Get.find();
+  final ProductController productController = Get.find();
+  final TransactionController transactionController = Get.find();
 
   late final List<PosMenuCategory> categories;
   late final RxString selectedCategoryKey;
@@ -31,6 +48,21 @@ class DashboardController extends GetxController {
     selectedMenuKey = categories.first.items.first.key.obs;
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    if (!authController.isLoggedIn) {
+      Get.offAllNamed(AppPages.login);
+      return;
+    }
+    categoryController.loadCategories();
+    productController.loadInitialData();
+    stockController.loadProducts();
+    paymentSettingController.load();
+    reportController.load();
+    transactionController.loadInitialData();
+  }
+
   void selectCategory(String key) {
     final category = categories.firstWhere((item) => item.key == key);
     selectedCategoryKey.value = category.key;
@@ -39,5 +71,9 @@ class DashboardController extends GetxController {
 
   void selectMenu(String key) {
     selectedMenuKey.value = key;
+  }
+
+  Future<void> logout() async {
+    await authController.logout();
   }
 }

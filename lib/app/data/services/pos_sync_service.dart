@@ -8,13 +8,30 @@ class PosSyncService {
       items: [
         PosMenuItem(
           key: 'user',
-          label: 'User',
-          description: 'Kelola akun operator, admin, dan hak akses POS PC.',
+          label: 'Sesi API',
+          description: 'Status login dan token aktif untuk Cashlez POS API.',
         ),
         PosMenuItem(
           key: 'item',
           label: 'Master Item',
-          description: 'Kelola data produk, kategori, dan harga jual.',
+          description: 'Kelola kategori, produk, harga, dan data stok awal.',
+        ),
+        PosMenuItem(
+          key: 'stock',
+          label: 'Stock',
+          description:
+              'Update stock dan lihat histori pergerakan stock produk.',
+        ),
+        PosMenuItem(
+          key: 'payment-setting',
+          label: 'Payment Setting',
+          description:
+              'Atur tax, rounding, service charge, dan metode pembayaran.',
+        ),
+        PosMenuItem(
+          key: 'upload',
+          label: 'Upload Media',
+          description: 'Upload image produk/category ke upload service.',
         ),
       ],
     ),
